@@ -1,0 +1,85 @@
+let s_list1 = [(1,0.1);(2,0.1);(3,0.1);(4,0.1);(5,0.1);(6,0.1);(7,0.1); (8, 0.999)];;
+let s_list2 = [(1,0.2);(2,0.2);(3,0.2);(4,0.2);(5,0.2);(6,0.2);(7,0.2); (8, 0.111)];;
+let mu1 = ((1,8), s_list1);;
+let mu2 = ((1,8), s_list2);;
+
+(*
+Prototype:
+	get_t1 (a,b)
+Input(s):
+	an abstract tuple of the form (a, b)
+Returned Value:
+	the first element of the tuple, i.e. a
+Side Effects:
+	none
+Signature:
+	val get_t1 : 'a * 'b -> 'a = <fun>
+Notes:
+	Tupled interface.
+*)
+let get_t1 (a,b) = a;;
+
+(*
+Prototype:
+	get_t2 (a,b)
+Input(s):
+	an abstract tuple of the form (a, b)
+Returned Value:
+	the second element of the tuple, i.e. b
+Side Effects:
+	none
+Signature:
+	val get_t1 : 'a * 'b -> 'b = <fun>
+Notes:
+	Tupled interface.
+*)
+let get_t2 (a,b) = b;;
+
+(*
+Prototype:
+	list_intersect (list1, list2)
+Input(s):
+	two lists of (int*float) tuples
+Returned Value:
+	list of point-by-point minimums between the tuples of each list
+Side Effects:
+	none
+Signature:
+	val list_intersect : ('a * 'b) list * ('a * 'b) list -> ('a * 'b) list = <fun>
+Notes:
+	Tupled interface; Called from set_intersect.
+*)
+let rec list_intersect (list1, list2) =
+	if List.length(list1) = 1 || List.length(list2) = 1
+		then 
+			if get_t2(List.hd(list1)) < get_t2(List.hd(list2))
+				then List.hd(list1) :: []
+			else 
+				List.hd(list2) :: []
+
+	else if get_t2(List.hd(list1)) < get_t2(List.hd(list2))
+		then List.hd(list1) :: list_intersect (List.tl(list1), List.tl(list2))
+
+	else
+		List.hd(list2) :: list_intersect (List.tl(list1), List.tl(list2));;
+
+
+(*
+Prototype:
+	set_intersect mu1 mu2
+Input(s):
+	two (int*int), (int*float) list tuples
+Returned Value:
+	a tuple composed of the inputs' domain tuple and the inputs' list intersection
+Side Effects:
+	none
+Signature:
+	val set_intersect : 
+		(’a * ’b) * (’c * ’d) list -> 
+		(’a * ’b) * (’c * ’d) list -> 
+		(’a * ’b) * (’c * ’d) list = <fun>
+Notes:
+	Curried interface; Calls list_intersect.
+*)
+let set_intersect mu1 mu2 =
+	(get_t1(mu1), list_intersect (get_t2(mu1), get_t2(mu2)));;
