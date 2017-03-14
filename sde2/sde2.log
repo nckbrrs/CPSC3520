@@ -1,0 +1,80 @@
+$ ocaml
+	OCaml version 4.02.3
+
+# #use "sde2.caml";;
+val get_t1 : 'a * 'b -> 'a = <fun>
+val get_t2 : 'a * 'b -> 'b = <fun>
+val list_intersect : ('a * 'b) list -> ('a * 'b) list -> ('a * 'b) list =
+  <fun>
+val maxTuplesDomSum : (int * 'a) list -> int = <fun>
+val set_intersect :
+  'a * ('b * 'c) list -> 'd * ('b * 'c) list -> 'a * ('b * 'c) list = <fun>
+val listMaxTuples : ('a * 'b) list -> 'a * 'b = <fun>
+val listMaxTupleValue : ('a * 'b) list -> 'b = <fun>
+val truncateConsequentMu : ('a * 'b) list -> 'b -> ('a * 'b) list = <fun>
+val listMaxTuplesAll : ('a * 'b) list -> ('a * 'b) list = <fun>
+val mom : (int * 'a) list -> float = <fun>
+# let s_list1 = [(1, 0.1); (2, 0.2); (3, 0.3); (4, 0.4); (5, 0.5)];;
+val s_list1 : (int * float) list =
+  [(1, 0.1); (2, 0.2); (3, 0.3); (4, 0.4); (5, 0.5)]
+# let s_list2 = [(1, 0.0); (2, 0.3); (3, 0.3); (4, 0.3); (5, 0.2)];;
+val s_list2 : (int * float) list =
+  [(1, 0.); (2, 0.3); (3, 0.3); (4, 0.3); (5, 0.2)]
+# let s_list3 = [(0, 0.1); (1, 0.6); (2, 0.3); (3, 0.8)];;
+val s_list3 : (int * float) list = [(0, 0.1); (1, 0.6); (2, 0.3); (3, 0.8)]
+# let s_list4 = [(0, 0.5); (1, 0.2); (2, 0.7); (3, 0.4)];;
+val s_list4 : (int * float) list = [(0, 0.5); (1, 0.2); (2, 0.7); (3, 0.4)]
+# let mu1 = ((1, 4), s_list1);;
+val mu1 : (int * int) * (int * float) list =
+  ((1, 4), [(1, 0.1); (2, 0.2); (3, 0.3); (4, 0.4); (5, 0.5)])
+# let mu2 = ((1, 4), s_list2);;
+val mu2 : (int * int) * (int * float) list =
+  ((1, 4), [(1, 0.); (2, 0.3); (3, 0.3); (4, 0.3); (5, 0.2)])
+# let mu3 = ((0, 3), s_list3);;
+val mu3 : (int * int) * (int * float) list =
+  ((0, 3), [(0, 0.1); (1, 0.6); (2, 0.3); (3, 0.8)])
+# let mu4 = ((0, 3), s_list4);;
+val mu4 : (int * int) * (int * float) list =
+  ((0, 3), [(0, 0.5); (1, 0.2); (2, 0.7); (3, 0.4)])
+# set_intersect mu1 mu2;;
+- : (int * int) * (int * float) list =
+((1, 4), [(1, 0.); (2, 0.2); (3, 0.3); (4, 0.3); (5, 0.2)])
+# set_intersect mu3 mu4;;
+- : (int * int) * (int * float) list =
+((0, 3), [(0, 0.1); (1, 0.2); (2, 0.3); (3, 0.4)])
+# s_list1;;
+- : (int * float) list = [(1, 0.1); (2, 0.2); (3, 0.3); (4, 0.4); (5, 0.5)]
+# listMaxTuples s_list1;;
+- : int * float = (5, 0.5)
+# s_list2;;
+- : (int * float) list = [(1, 0.); (2, 0.3); (3, 0.3); (4, 0.3); (5, 0.2)]
+# listMaxTuples s_list2;;
+- : int * float = (4, 0.3)
+# s_list1;;
+- : (int * float) list = [(1, 0.1); (2, 0.2); (3, 0.3); (4, 0.4); (5, 0.5)]
+# listMaxTupleValue s_list1;;
+- : float = 0.5
+# s_list2;;
+- : (int * float) list = [(1, 0.); (2, 0.3); (3, 0.3); (4, 0.3); (5, 0.2)]
+# listMaxTupleValue s_list2;;
+- : float = 0.3
+# s_list1;;
+- : (int * float) list = [(1, 0.1); (2, 0.2); (3, 0.3); (4, 0.4); (5, 0.5)]
+# truncateConsequentMu s_list1 0.2;;
+- : (int * float) list = [(1, 0.1); (2, 0.2); (3, 0.2); (4, 0.2); (5, 0.2)]
+# s_list2;;
+- : (int * float) list = [(1, 0.); (2, 0.3); (3, 0.3); (4, 0.3); (5, 0.2)]
+# truncateConsequentMu s_list2 0.2;;
+- : (int * float) list = [(1, 0.); (2, 0.2); (3, 0.2); (4, 0.2); (5, 0.2)]
+# s_list1;;
+- : (int * float) list = [(1, 0.1); (2, 0.2); (3, 0.3); (4, 0.4); (5, 0.5)]
+# listMaxTuplesAll s_list1;;
+- : (int * float) list = [(5, 0.5)]
+# mom (listMaxTuplesAll s_list1);;
+- : float = 5.
+# s_list2;;
+- : (int * float) list = [(1, 0.); (2, 0.3); (3, 0.3); (4, 0.3); (5, 0.2)]
+# listMaxTuplesAll s_list2;;
+- : (int * float) list = [(2, 0.3); (3, 0.3); (4, 0.3)]
+# mom (listMaxTuplesAll s_list2);;
+- : float = 3.

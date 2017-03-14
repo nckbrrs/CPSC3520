@@ -1,7 +1,8 @@
-let s_list1 = [(1,0.1);(2,0.2);(3,0.3);(4,0.4);(5,0.3);(6,0.2);(7,0.1); (8, 0.)];;
-let s_list2 = [(1,0.2);(2,0.2);(3,0.2);(4,0.2);(5,0.2);(6,0.6);(7,0.2); (8, 0.111)];;
-let mu1 = ((1,8), s_list1);;
-let mu2 = ((1,8), s_list2);;
+(* -------------------------------------------------------------------
+ * The following are functions that were not specified by the project,
+ * but that I designed in order to help implement the functions
+ * required by the project.
+ * -------------------------------------------------------------------*)
 
 (*
 Prototype:
@@ -37,32 +38,57 @@ let get_t2 (a,b) = b;;
 
 (*
 Prototype:
-	list_intersect (slist1, slist2)
+	list_intersect slist1 slist2)
 Input(s):
 	two lists of (int*float) tuples
 Returned Value:
-	list of point-by-point minimums between the tuples of each list
+	list of (int*float) tuples, where each tuple is chosen from
+	slist1 or slist2, based on whichever one has a lower second
+	value (i.e. the membership function value)
 Side Effects:
 	none
 Signature:
-	val list_intersect : ('a * 'b) list * ('a * 'b) list -> ('a * 'b) list = <fun>
+	val list_intersect : ('a * 'b) list -> ('a * 'b) list -> ('a * 'b) list = <fun>
 Notes:
-	Tupled interface; Called from set_intersect.
+	Curried interface; Called from set_intersect.
 *)
-let rec list_intersect (slist1, slist2) =
-	if List.length(slist1) = 1 || List.length(slist2) = 1
+let rec list_intersect slist1 slist2 =
+	if ((List.length(slist1)) = 1) || ((List.length(slist2)) = 1)
 		then 
-			if get_t2(List.hd(slist1)) < get_t2(List.hd(slist2))
-				then List.hd(slist1) :: []
+			if (get_t2(List.hd(slist1))) < (get_t2(List.hd(slist2)))
+				then ((List.hd(slist1)) :: [])
 			else 
-				List.hd(slist2) :: []
+				((List.hd(slist2)) :: [])
 
-	else if get_t2(List.hd(slist1)) < get_t2(List.hd(slist2))
-		then List.hd(slist1) :: list_intersect (List.tl(slist1), List.tl(slist2))
+	else if (get_t2(List.hd(slist1))) < (get_t2(List.hd(slist2)))
+		then ((List.hd(slist1)) :: (list_intersect (List.tl(slist1)) (List.tl(slist2))))
 
 	else
-		List.hd(slist2) :: list_intersect (List.tl(slist1), List.tl(slist2));;
+		((List.hd(slist2)) :: (list_intersect (List.tl(slist1)) (List.tl(slist2))));;
 
+(*
+Prototype:
+	maxTuplesDomSum slist
+Input(s):
+	slist, a list of int*float tuples
+Returned Value:
+	the summation of the first value of every tuple in slist
+Side Effects:
+	none
+Signature:
+	val maxTuplesDomSum : (int * 'a) list -> int = <fun>
+Notes:
+	Called from mom.
+*)
+let rec maxTuplesDomSum slist = 
+	if (List.length(slist)) = 1
+		then (get_t1(List.hd(slist)))
+	else
+		(((get_t1(List.hd(slist))) + (maxTuplesDomSum(List.tl(slist)))));;
+
+(* -------------------------------------------------------------------
+ * The following are functions that were specified by the project.
+ -------------------------------------------------------------------*)
 
 (*
 Prototype:
@@ -81,8 +107,8 @@ Signature:
 Notes:
 	Curried interface; Calls list_intersect.
 *)
-let set_intersect mu1 mu2 =
-	(get_t1(mu1), list_intersect (get_t2(mu1), get_t2(mu2)));;
+let set_intersect mu1 mu2 = 
+	((get_t1(mu1)), (list_intersect (get_t2(mu1)) (get_t2(mu2))));;
 
 (*
 Prototype:
@@ -99,10 +125,103 @@ Notes:
 	Assume this function is used on list with single maximum mu value.
 *)
 let rec listMaxTuples slist = 
-	if List.length(slist) = 1
-		then List.nth slist 0
+	if (List.length(slist)) = 1
+		then (List.hd(slist))
 	else
-		if get_t2(List.nth slist 0) > get_t2(listMaxTuples(List.tl(slist)))
-			then List.nth slist 0
+		if (get_t2(List.hd(slist))) > (get_t2(listMaxTuples(List.tl(slist))))
+			then (List.hd(slist))
 		else
-			listMaxTuples(List.tl(slist));;
+			(listMaxTuples(List.tl(slist)));;
+
+(*
+Prototype:
+	listMaxTupleValue slist
+Input(s):
+	slist, a list of int*float tuples
+Returned Value:
+	value of membership function corresponding to max tuple
+Side Effects:
+	none
+Signature:
+	val listMaxTupleValue : ('a * 'b) list -> 'b = <fun>
+Notes:
+	Might involve listMaxTuples.
+*)
+let listMaxTupleValue slist = 
+	(get_t2(listMaxTuples(slist)));;
+
+(*
+Prototype:
+	truncateConsequentMu slist value
+Input(s):
+	slist, a list of int*float tuples
+	value, an integer value
+Returned Value:
+	a list of int*float tuples, where each tuple in slist
+	whose membership function value is greater than value is set to 
+	value, and all other tuples are the same as in slist
+Side Effects:
+	none
+Signature:
+	val truncateConsequentMu : ('a * 'b) list -> 'b -> ('a * 'b) list = <fun>
+Notes:
+	Curried interface. This is the truncation of the consequent
+	fuzzy set at a level determined by parameter value.
+*)
+let rec truncateConsequentMu slist value = 
+	if (List.length(slist)) = 1
+		then 
+			if (get_t2(List.hd(slist))) > value
+				then (((get_t1(List.hd(slist))), value) :: [])
+			else
+				((List.hd(slist)) :: [])
+	else
+		if (get_t2(List.hd(slist))) > value
+			then (((get_t1(List.hd(slist))), value) :: (truncateConsequentMu (List.tl(slist)) value))
+		else
+			((List.hd(slist)) :: (truncateConsequentMu (List.tl(slist)) value));;
+
+(*
+Prototype:
+	listMaxTuplesAll slist
+Input(s):
+	slist, a list of int*float tuples
+Returned Value:
+	a list of all maximum-valued tuples
+Side Effects:
+	none
+Signature:
+	val listMaxTuplesAll : ('a * 'b) list -> ('a * 'b) list = <fun>
+Notes:
+	Find ALL maximum-value tuples of slist with possibly many equal
+	maxima
+*)
+let rec listMaxTuplesAll slist =
+	if (List.length(slist)) = 1
+		then ((List.hd(slist)) :: [])
+
+	else
+		if (get_t2(List.hd(slist))) > (get_t2(List.hd(listMaxTuplesAll(List.tl(slist)))))
+			then ((List.hd(slist)) :: [])
+		else
+				if (get_t2(List.hd(slist))) = (get_t2(List.hd(listMaxTuplesAll(List.tl(slist)))))
+					then (List.hd(slist)) :: (listMaxTuplesAll(List.tl(slist)))
+			else
+				(listMaxTuplesAll(List.tl(slist)));;
+
+(*
+Prototype:
+	mom maxlist
+Input(s):
+	list of maximum tuples from propagated (truncated) fuzzy set (consequent)
+Returned Value:
+	mom defuzzified value
+Side Effects:
+	none
+Signature:
+	val mom : (int * 'a) list -> float = <fun>
+Notes:
+	none.
+*)
+let mom maxlist =
+	((float_of_int(maxTuplesDomSum maxlist)) /. (float_of_int(List.length(maxlist))));;
