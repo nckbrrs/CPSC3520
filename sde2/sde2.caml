@@ -206,8 +206,8 @@ let rec listMaxTuplesAll slist =
 		else
 				if (get_t2(List.hd(slist))) = (get_t2(List.hd(listMaxTuplesAll(List.tl(slist)))))
 					then (List.hd(slist)) :: (listMaxTuplesAll(List.tl(slist)))
-			else
-				(listMaxTuplesAll(List.tl(slist)));;
+				else
+					(listMaxTuplesAll(List.tl(slist)));;
 
 (*
 Prototype:
